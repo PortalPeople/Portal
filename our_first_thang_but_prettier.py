@@ -63,7 +63,7 @@ def turnOn(start, count, frame_dir):
 def update(i, frame_dir):
     clearLights()
     # printCharHorizontally(i, 1, letters["A"])
-    printMessageHorizontally(i, 1, "hello world")
+    printMessageHorizontally(i, 1, "hello handsome")
     # turnOn(i, 3, frame_dir)
     time.sleep(0.05)
 
