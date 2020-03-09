@@ -18,23 +18,58 @@ frames_to_change_hue = 10
 frame_num = 0
 frame_dir = 1
 
-def printChar(start_x, start_y, char):
-    for char_x in range(len(char)):
-        for char_y in range(len(char[0])):
-            if char[char_x][char_y]:
-                if (start_x + char_x) < cols and (start_x + char_x) >= 0:
-                    lights[(start_x + char_x) % cols][(start_y + char_y) % rows] = 100
+def alignBottom(image, len_x, len_y):
+    newImage = [[0 for i in range(len_y)] for j in range(len_x)]
 
-def printCharHorizontally(i, y, char):
-    printChar(cols - (i % cols), 1, char)
+    start_x = len_x - len(image)
+    start_y = len_y - len(image[0])
 
-def printMessage(start_x, start_y, message):
-    chars = list(message.upper())
-    for pos in (range(len(chars))):
-        printChar(start_x + pos * 6, start_y, letters[chars[pos]])
+    for x in range(len(image)):
+        for y in range(len(image[0])):
+            newImage[start_x + x][start_y + y] = image[x][y]
+    
+    return newImage
 
-def printMessageHorizontally(i, y, message):
-    printMessage(cols - (i % (len(message) * 10)), y, message)
+def printImage(x, y, image):
+    for image_x in range(len(image)):
+        for image_y in range(len(image[0])):
+            if image[image_x][image_y]:
+                if (x + image_x) < cols and (x + image_x) >= 0:
+                    lights[(x + image_x) % cols][(y + image_y) % rows] = image[image_x][image_y] * 100
+
+def printImages(x, y, images):
+    max_x = 0
+    max_y = 0
+    for image in images:
+        if (len(image) > max_x):
+            max_x = len(image)
+        if (len(image[0]) > max_y):
+            max_y = len(image[0])
+
+    for pos in range(len(images)):
+        printImage(x + pos * (max_x + 1), y, alignBottom(images[pos], max_x, max_y))
+
+def printHorizontallyWrap(y, images):
+    max_x = 0
+    for image in images:
+        if (len(image) > max_x):
+            max_x = len(image)
+
+    printImages(cols - (frame_num % ((max_x + 1) * len(images) + cols)), 1, images)
+
+def printHorizontallyNoWrap(y, images):
+    printImages(cols - frame_num, y, images)
+
+
+def printMessageHorizontally(y, message):
+    chars = message.upper()
+    images = [0] * len(chars)
+
+
+    for i in range(len(chars)):
+        images[i] = letters[chars[i]]
+
+    printHorizontallyWrap(y, images)
 
 
 def getRandomPrettyColor():
@@ -63,7 +98,7 @@ def turnOn(start, count, frame_dir):
 def update(i, frame_dir):
     clearLights()
     # printCharHorizontally(i, 1, letters["A"])
-    printMessageHorizontally(i, 1, "hello handsome")
+    printMessageHorizontally(1, "hello handsome")
     # turnOn(i, 3, frame_dir)
     time.sleep(0.05)
 
@@ -107,15 +142,6 @@ def draw():
         current_hue -= hue_shift_per_frame
     elif (current_hue < target_hue):
         current_hue += hue_shift_per_frame
-
-    # if mouse_is_pressed:
-    #     fill(random_uniform(255), random_uniform(127), random_uniform(51), 127)
-    # else:
-    #     fill(255, 15)
-
-    # circle_size = random_uniform(low=10, high=80)
-
-    # circle((mouse_x, mouse_y), circle_size)
 
 
 def key_pressed(event):
